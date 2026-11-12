@@ -1,0 +1,54 @@
+name: AI öyrət (v4 üstündən, ~5 saat)
+
+# Əl ilə və ya push ilə (ai/START faylı dəyişəndə) başlayır. Model ai/models/durak_mp.json özü-özü ilə öyrənir,
+# sonda ara nüsxələr yoxlanılır: yeni model yalnız 2, 3 və 4 nəfərin HƏR BİRİNDƏ köhnədən güclüdürsə götürülür.
+on:
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: 'Öyrətmə müddəti (dəqiqə, ən çox 315)'
+        default: '300'
+  push:
+    paths: ['ai/START']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: train
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Özü-özü ilə oyna və öyrən (2-4 nəfər)
+        working-directory: ai
+        run: |
+          M="${{ github.event.inputs.minutes }}"; [ -z "$M" ] && M=300; [ "$M" -gt 315 ] && M=315
+          cp models/durak_mp.json /tmp/base.json
+          node trainn.js --minutes "$M" --model models/durak_mp.json --log models/log_mp.txt --evalEvery 25000 \
+            --pn 0.34,0.33,0.33 --nb4 0.5 --lr 0.0004 --snapEvery 150000 --snapDir /tmp/snaps
+      - name: Yoxla və seç (heç bir oyunçu sayında geriləmə olmasın)
+        working-directory: ai
+        run: |
+          cp models/durak_mp.json /tmp/final.json
+          C="/tmp/final.json $(ls /tmp/snaps/*.json 2>/dev/null)"
+          for m in /tmp/base.json $C; do node evaldet.js $m 2000 --json $m.res > /dev/null & done; wait
+          node pick.js --choose /tmp/base.json.res $(for m in $C; do echo $m.res; done) --bestOut /tmp/best.txt --log models/log_mp.txt
+          B=$(cat /tmp/best.txt)
+          node evaldet.js /tmp/base.json 2000 --seed 777 --json /tmp/base2.res > /dev/null & node evaldet.js $B 2000 --seed 777 --json /tmp/best2.res > /dev/null & wait
+          node pick.js --final /tmp/base.json.res $B.res /tmp/base2.res /tmp/best2.res --base /tmp/base.json --out models/durak_mp.json --log models/log_mp.txt --decision models/decision.txt
+          node evaldet.js models/durak_mp.json 1000 --log models/log_mp.txt
+      - name: Nəticəni yaz
+        run: |
+          git config user.name "durak-ai-train"
+          git config user.email "durak-ai-train@users.noreply.github.com"
+          git add ai/models/durak_mp.json ai/models/log_mp.txt ai/models/decision.txt
+          git commit -m "Öyrətmə bitdi: $(cat ai/models/decision.txt) — $(node -e "console.log(require('./ai/models/durak_mp.json').meta.games)") oyun" || exit 0
+          git pull --rebase origin main && git push origin HEAD:main
