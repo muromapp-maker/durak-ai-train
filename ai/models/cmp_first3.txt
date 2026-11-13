@@ -1,0 +1,18 @@
+# firstv1 / firstv2 / firstv3a / firstv3b / v4 müqayisəsi (2026-11-13); 3a və 3b firstv1-in üstündən öyrədilib
+## qaydalı botlara qarşı (hər növdə 4000 oyun)
+first_v1: 2 nəfər: 1-ci 74.5% (bərabər 50%), durak 21.7% · 3 nəfər: 1-ci 44.3% (bərabər 33%), durak 20.4% · 4 nəfər: 1-ci 36.1% (bərabər 25%), durak 23.5% · güc 1.421
+first_v2: 2 nəfər: 1-ci 74.2% (bərabər 50%), durak 21.2% · 3 nəfər: 1-ci 47.2% (bərabər 33%), durak 22.4% · 4 nəfər: 1-ci 36.4% (bərabər 25%), durak 25.9% · güc 1.452
+first_v3a: 2 nəfər: 1-ci 75.1% (bərabər 50%), durak 20.5% · 3 nəfər: 1-ci 47.1% (bərabər 33%), durak 20.5% · 4 nəfər: 1-ci 35.8% (bərabər 25%), durak 26.0% · güc 1.449
+first_v3b: 2 nəfər: 1-ci 75.9% (bərabər 50%), durak 20.0% · 3 nəfər: 1-ci 48.5% (bərabər 33%), durak 19.4% · 4 nəfər: 1-ci 37.4% (bərabər 25%), durak 23.7% · güc 1.489
+v4: 2 nəfər: 1-ci 76.3% (bərabər 50%), durak 20.1% · 3 nəfər: 1-ci 40.3% (bərabər 33%), durak 12.3% · 4 nəfər: 1-ci 27.5% (bərabər 25%), durak 12.7% · güc 1.278
+## üz-üzə (bir yerdə birinci model, qalan yerlərdə ikinci; hər növdə 2000 oyun)
+first_v1 vs v4: 2 nəfər: 1-ci 46.6% (bərabər 50%), durak 50.9% · 3 nəfər: 1-ci 34.7% (bərabər 33%), durak 46.4% · 4 nəfər: 1-ci 30.7% (bərabər 25%), durak 40.9%
+first_v2 vs v4: 2 nəfər: 1-ci 47.6% (bərabər 50%), durak 49.5% · 3 nəfər: 1-ci 35.2% (bərabər 33%), durak 49.4% · 4 nəfər: 1-ci 31.2% (bərabər 25%), durak 42.6%
+first_v3a vs v4: 2 nəfər: 1-ci 48.7% (bərabər 50%), durak 48.3% · 3 nəfər: 1-ci 36.5% (bərabər 33%), durak 46.7% · 4 nəfər: 1-ci 31.1% (bərabər 25%), durak 42.8%
+first_v3b vs v4: 2 nəfər: 1-ci 47.1% (bərabər 50%), durak 50.1% · 3 nəfər: 1-ci 36.3% (bərabər 33%), durak 46.7% · 4 nəfər: 1-ci 31.5% (bərabər 25%), durak 40.6%
+first_v2 vs first_v1: 2 nəfər: 1-ci 51.6% (bərabər 50%), durak 45.8% · 3 nəfər: 1-ci 34.8% (bərabər 33%), durak 35.8% · 4 nəfər: 1-ci 25.9% (bərabər 25%), durak 27.9%
+first_v3a vs first_v1: 2 nəfər: 1-ci 51.4% (bərabər 50%), durak 45.6% · 3 nəfər: 1-ci 34.1% (bərabər 33%), durak 33.4% · 4 nəfər: 1-ci 25.2% (bərabər 25%), durak 29.2%
+first_v3a vs first_v2: 2 nəfər: 1-ci 50.2% (bərabər 50%), durak 46.7% · 3 nəfər: 1-ci 32.3% (bərabər 33%), durak 28.7% · 4 nəfər: 1-ci 24.5% (bərabər 25%), durak 25.4%
+first_v3a vs first_v3b: 2 nəfər: 1-ci 51.0% (bərabər 50%), durak 45.9% · 3 nəfər: 1-ci 32.4% (bərabər 33%), durak 32.9% · 4 nəfər: 1-ci 24.5% (bərabər 25%), durak 28.8%
+first_v3b vs first_v1: 2 nəfər: 1-ci 50.4% (bərabər 50%), durak 46.9% · 3 nəfər: 1-ci 33.8% (bərabər 33%), durak 32.7% · 4 nəfər: 1-ci 25.5% (bərabər 25%), durak 24.4%
+first_v3b vs first_v2: 2 nəfər: 1-ci 49.0% (bərabər 50%), durak 48.1% · 3 nəfər: 1-ci 33.5% (bərabər 33%), durak 27.5% · 4 nəfər: 1-ci 25.3% (bərabər 25%), durak 20.4%
