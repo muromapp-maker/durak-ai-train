@@ -1,0 +1,30 @@
+# AI v4 vs firstv1 — eyni masada (yerlər hər oyunda qarışdırılır; ötürmə və 4 nəfərdə "kim atır" 50/50)
+# 1-ci = oyundan ilk çıxma payı (bərabər güc: 2n 50%, 3n 33%, 4n 25%); durak deyil = durak olmama payı (bərabər: 2n 50%, 3n 67%, 4n 75%)
+
+## firstv1 təmiz (bütün oyun boyu firstv1)
+nəfər | kart | masa | oyun | v4: 1-ci / durak deyil | firstv1: 1-ci / durak deyil
+2 | 24 | v4,firstv1 | 797274 | 54.9% / 56.2% | 45.1% / 46.4%
+2 | 36 | v4,firstv1 | 409783 | 53.3% / 56.0% | 46.7% / 49.3%
+2 | 52 | v4,firstv1 | 291665 | 52.5% / 56.3% | 47.5% / 51.3%
+3 | 24 | v4,firstv1,firstv1 | 899513 | 29.6% / 84.7% | 35.2% / 59.3%
+3 | 24 | v4,firstv1,v4 | 812306 | 32.4% / 75.4% | 35.2% / 51.7%
+3 | 36 | v4,firstv1,firstv1 | 55848 | 31.1% / 84.3% | 34.5% / 60.4%
+3 | 36 | v4,firstv1,v4 | 142658 | 33.3% / 76.2% | 33.3% / 52.2%
+3 | 52 | v4,firstv1,firstv1 | 134522 | 30.1% / 82.1% | 34.9% / 63.2%
+3 | 52 | v4,firstv1,v4 | 178048 | 32.7% / 75.4% | 34.6% / 56.5%
+4 | 24 | v4,v4,firstv1,firstv1 | 848736 | 20.8% / 87.1% | 29.2% / 63.9%
+4 | 36 | v4,v4,firstv1,firstv1 | 504576 | 21.3% / 87.6% | 28.7% / 63.9%
+4 | 52 | v4,v4,firstv1,firstv1 | 298939 | 21.5% / 86.4% | 28.5% / 65.8%
+
+## firstv1 tətbiqdəki kimi (3+ nəfər, kimsə çıxana qədər firstv1, sonra v4)
+nəfər | kart | masa | oyun | v4: 1-ci / durak deyil | firstv1: 1-ci / durak deyil
+3 | 24 | v4,firstv1,firstv1 | 943909 | 29.6% / 76.8% | 35.2% / 62.7%
+3 | 24 | v4,firstv1,v4 | 1007807 | 32.4% / 71.9% | 35.2% / 58.5%
+3 | 36 | v4,firstv1,firstv1 | 65881 | 31.0% / 77.5% | 34.5% / 63.1%
+3 | 36 | v4,firstv1,v4 | 152300 | 33.3% / 73.3% | 33.4% / 57.4%
+3 | 52 | v4,firstv1,firstv1 | 199437 | 30.1% / 76.3% | 35.0% / 64.9%
+3 | 52 | v4,firstv1,v4 | 189589 | 32.7% / 72.9% | 34.6% / 60.6%
+4 | 24 | v4,v4,firstv1,firstv1 | 1058123 | 20.8% / 78.7% | 29.2% / 72.4%
+4 | 36 | v4,v4,firstv1,firstv1 | 743098 | 21.3% / 79.6% | 28.7% / 71.9%
+4 | 52 | v4,v4,firstv1,firstv1 | 443551 | 21.6% / 79.8% | 28.4% / 72.4%
+
