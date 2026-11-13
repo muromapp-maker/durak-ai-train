@@ -1,0 +1,9 @@
+atılan səhv etiketli avtomatik nümunə: 15
+v6 → zip7 ayrılmış kartlar          365/ 366 düz (99.7%) · ≥95%: 360, onlardan səhv 1
+v6 → sənin "kart deyil" (5)           0/   5 düz (0.0%) · ≥95%: 2, onlardan səhv 2
+v6 → tərs künclər (ayrılmış)        448/ 534 düz (83.9%) · ≥95%: 273, onlardan səhv 0
+v6 → digər kart-deyil (ayrılmış)    226/ 226 düz (100.0%) · ≥95%: 226, onlardan səhv 0
+v8 → zip7 ayrılmış kartlar          365/ 366 düz (99.7%) · ≥95%: 363, onlardan səhv 1
+v8 → sənin "kart deyil" (5)           0/   5 düz (0.0%) · ≥95%: 1, onlardan səhv 1
+v8 → tərs künclər (ayrılmış)        534/ 534 düz (100.0%) · ≥95%: 533, onlardan səhv 0
+v8 → digər kart-deyil (ayrılmış)    226/ 226 düz (100.0%) · ≥95%: 223, onlardan səhv 0

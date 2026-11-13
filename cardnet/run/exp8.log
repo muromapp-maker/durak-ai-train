@@ -1,0 +1,8 @@
+atılan səhv etiketli avtomatik nümunə: 15
+v6 → zip-6 ayrılmış kartlar: 171/171 düz (100.0%) · ≥95%: 168, səhv 0 · "kart deyil" dedi: 0
+v6 → kart olmayan 226 şəkil: ≥95% əminliklə kart dedi: 148
+v7 → zip-6 ayrılmış kartlar: 171/171 düz (100.0%) · ≥95%: 169, səhv 0 · "kart deyil" dedi: 0
+v7 → kart olmayan şəkillər: 226/226 düz (100.0%) · ≥95%: 225, səhv 0 · "kart deyil" dedi: 226
+v6 → kart olmayan şəkillər: 226/226 düz (100.0%) · ≥95%: 226, səhv 0 · "kart deyil" dedi: 226
+v7 son: hamısında 99.40%
+ok

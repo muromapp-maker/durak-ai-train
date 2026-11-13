@@ -1,0 +1,6 @@
+atılan səhv etiketli avtomatik nümunə: 10 {np.str_('zip2'): 2, np.str_('zip4'): 8}
+v3 → zip-4 (təmiz, hamısı): 552/560 düz (98.6%) · ≥95%: 514, səhv 0
+v3 → zip-4 ayrılmış (təmiz): 217/220 düz (98.6%) · ≥95%: 199, səhv 0
+v4 → zip-4 ayrılmış (təmiz): 216/220 düz (98.2%) · ≥95%: 200, səhv 0
+v4 son: hamısında 98.67%
+ok
