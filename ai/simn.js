@@ -34,7 +34,7 @@ class GameN {
     let best = 99, att = 0;
     for (let p = 0; p < N; p++) for (const c of this.h[p]) if (S_(c) === this.TS && R_(c) < best) { best = R_(c); att = p; }
     this.att = att; this.att0 = att; this.def = this.nextAct(att);
-    this.durak = null; this.moves = 0; this.cur = -1;
+    this.durak = null; this.moves = 0; this.cur = -1; this.first = null;   // first: oyundan ilk çıxan(lar)
   }
   active(p) { return this.h[p].length > 0 || this.dk.length > 0; }
   nextAct(p) { for (let k = 1; k <= this.N; k++) { const q = (p + k) % this.N; if (this.active(q)) return q; } return -1; }
@@ -121,12 +121,15 @@ class GameN {
     for (let k = 0; k < this.N; k++) { const p = (this.att0 + k) % this.N; if (p !== d) this.draw(p); }
     this.draw(d);
     let cnt = 0, last = -1; for (let p = 0; p < this.N; p++) if (this.active(p)) { cnt++; last = p; }
+    if (!this.first) { const out = []; for (let p = 0; p < this.N; p++) if (!this.active(p)) out.push(p); if (out.length) this.first = out; }
     if (cnt <= 1) { this.durak = cnt === 1 ? last : -1; return; }
     const a = took ? this.nextAct(d) : (this.active(d) ? d : this.nextAct(d));
     this.att = a; this.att0 = a; this.def = this.nextAct(a);
   }
   // p üçün nəticə: durak — 0, durak deyil — 1, heç-heçə (hamı birdən çıxdı) — 0.5
   score(p) { return this.durak === p ? 0 : this.durak < 0 ? 0.5 : 1; }
+  // p üçün "1-ci olmaq" nəticəsi: tək 1-cidirsə 1, eyni anda bir neçə nəfər çıxıbsa bölünür, yoxsa 0
+  scoreFirst(p) { const f = this.first || []; return f.includes(p) ? 1 / f.length : 0; }
 }
 
 module.exports = { GameN, makeDeck, S_, R_, MINR };

@@ -11,6 +11,7 @@ const MIN = +(A.minutes || 5), LR = +(A.lr || 0.0007), LAM = +(A.lambda || 0.7),
 const PATH = A.model || 'models/durak_mp.json', LOG = A.log || 'models/log_mp.txt', EVAL = +(A.evalEvery || 5000), BATCH = 128;
 // oyunçu sayı payları (2,3,4) və 4 nəfərlikdə "qonşular atır" payı — --pn 0.15,0.3,0.55 --nb4 0.75
 const SNAP = +(A.snapEvery || 0), SNAPDIR = A.snapDir || 'snaps';
+const FIRST = A.goal === 'first';   // --goal first: durak olmamaq yox, oyunda 1-ci olmaq üçün öyrən
 const PNa = (A.pn || '0.2,0.4,0.4').split(',').map(Number), PN = { 2: PNa[0], 3: PNa[1], 4: PNa[2] }, NB4 = +(A.nb4 || 0.3);
 
 let net, meta = { games: 0, samples: 0, hist: [], by: {} };
@@ -44,7 +45,7 @@ function selfPlay(eps) {
   }
   if (!g.over()) return;
   for (let p = 0; p < n; p++) {
-    let G = g.score(p); const T = tr[p];
+    let G = FIRST ? g.scoreFirst(p) : g.score(p); const T = tr[p];
     for (let t = T.length - 1; t >= 0; t--) { const target = G; buf.X.push(T[t].x); buf.T.push(target); G = (1 - LAM) * T[t].v + LAM * target; }
   }
   const key = n + 'p' + o.deckSize; meta.by[key] = (meta.by[key] || 0) + 1;
@@ -57,7 +58,7 @@ function evalVs(bot, n, games, seed) {
   for (let i = 0; i < games; i++) {
     const o = { n, deckSize: [24, 36, 52][i % 3], trf: i % 2 === 0, f5: true, nb: false, rnd: r }, g = new GameN(o), seat = i % n;
     for (let k = 0; k < 4000; k++) { const info = g.legal(); if (!info) break; g.play((info.p === seat ? nnBotN(net, 0) : bot).pick(g, info, r)); }
-    if (g.over()) { done++; if (g.durak === seat) dk++; }
+    if (g.over()) { done++; if (FIRST ? g.scoreFirst(seat) > 0 : g.durak === seat) dk += FIRST ? g.scoreFirst(seat) : 1; }
   }
   return dk / Math.max(1, done);
 }
@@ -76,6 +77,7 @@ while (Date.now() < end) {
   if (meta.games % EVAL === 0) {
     const d2 = evalVs(ruleBotN, 2, 150, meta.games), d3 = evalVs(ruleBotN, 3, 150, meta.games + 1), d4 = evalVs(ruleBotN, 4, 150, meta.games + 2);
     meta.hist.push({ g: meta.games, d2: +d2.toFixed(3), d3: +d3.toFixed(3), d4: +d4.toFixed(3) });
+    if (FIRST) log(`oyun ${meta.games} · itki ${(lossS / Math.max(1, lossN)).toFixed(4)} · qaydalı botlara qarşı 1-ci olur: 2 nəfər ${(d2 * 100).toFixed(0)}% (bərabər 50), 3 nəfər ${(d3 * 100).toFixed(0)}% (33), 4 nəfər ${(d4 * 100).toFixed(0)}% (25) · ${((meta.games - g0) / ((Date.now() - t0) / 1000)).toFixed(1)} oyun/san`); else
     log(`oyun ${meta.games} · itki ${(lossS / Math.max(1, lossN)).toFixed(4)} · qaydalı botlara qarşı durak olur: 2 nəfər ${(d2 * 100).toFixed(0)}% (bərabər 50), 3 nəfər ${(d3 * 100).toFixed(0)}% (33), 4 nəfər ${(d4 * 100).toFixed(0)}% (25) · ${((meta.games - g0) / ((Date.now() - t0) / 1000)).toFixed(1)} oyun/san`);
     lossS = 0; lossN = 0;
     fs.writeFileSync(PATH, JSON.stringify({ net: net.toJSON(), meta }));

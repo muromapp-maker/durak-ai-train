@@ -1,0 +1,53 @@
+name: firstv1 öyrət — oyunda 1-ci olmaq (~5 saat)
+
+# Ayrı model: ai/models/first_v1.json. Durak olmamaq yox, oyundan İLK çıxan olmaq üçün öyrənir (2, 3, 4 nəfər, 24/36/52 kart,
+# ötürməli/ötürməsiz, 4 nəfərdə "hamı atır"/"qonşular atır"). v4-ün çəkilərindən başlayır. Sonda ara nüsxələrdən ən güclüsü seçilir.
+on:
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: 'Öyrətmə müddəti (dəqiqə, ən çox 315)'
+        default: '300'
+  push:
+    paths: ['ai/START_FIRST']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: train-first
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Özü-özü ilə oyna və 1-ci olmağı öyrən (2-4 nəfər)
+        working-directory: ai
+        run: |
+          M="${{ github.event.inputs.minutes }}"; [ -z "$M" ] && M=300; [ "$M" -gt 315 ] && M=315
+          cp models/first_v1.json /tmp/base.json
+          node trainn.js --goal first --minutes "$M" --model models/first_v1.json --log models/log_first.txt --evalEvery 25000 \
+            --pn 0.34,0.33,0.33 --nb4 0.5 --lr 0.0007 --snapEvery 150000 --snapDir /tmp/snaps
+      - name: Yoxla və ən güclünü seç
+        working-directory: ai
+        run: |
+          cp models/first_v1.json /tmp/final.json
+          C="/tmp/final.json $(ls /tmp/snaps/*.json 2>/dev/null)"
+          for m in /tmp/base.json $C; do node evalfirst.js $m 2000 --json $m.res > /dev/null & done; wait
+          node pickfirst.js /tmp/base.json.res $(for m in $C; do echo $m.res; done) --out /tmp/best.txt --log models/log_first.txt
+          B=$(cat /tmp/best.txt); cp $B models/first_v1.json
+          node evalfirst.js models/first_v1.json 2000 --seed 777 --log models/log_first.txt
+          node evalfirst.js /tmp/base.json 2000 --seed 777 --log models/log_first.txt
+      - name: Nəticəni yaz
+        run: |
+          git config user.name "durak-ai-train"
+          git config user.email "durak-ai-train@users.noreply.github.com"
+          git add ai/models/first_v1.json ai/models/log_first.txt
+          git commit -m "firstv1 öyrətməsi bitdi: $(node -e "console.log(require('./ai/models/first_v1.json').meta.games)") oyun" || exit 0
+          for i in 1 2 3; do git pull --rebase origin main && git push origin HEAD:main && break; sleep 10; done
