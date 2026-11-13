@@ -1,0 +1,86 @@
+name: firstv2 (təkrar) + firstv3a + firstv3b paralel öyrət və müqayisə (~5 saat)
+
+# Üç öyrətmə eyni vaxtda, hamısı firstv1-dən başlayır:
+#  • first_v2:  adi öyrətmə davamı (itən firstv2-nin təkrarı)
+#  • first_v3a: axtarışla öyrətmə + dəqiq seçim
+#  • first_v3b: qarışıq rəqiblərlə öyrətmə + dəqiq seçim
+# Öyrətmə bitən kimi bütün ara modellər ehtiyat kimi yüklənir (artifact, 90 gün) — sonrakı addım yıxılsa da model itmir.
+# Sonda compare: firstv1, firstv2, firstv3a, firstv3b, v4 → ai/models/cmp_first3.txt. Bütün modellər saxlanılır.
+on:
+  workflow_dispatch:
+  push:
+    paths: ['ai/START_FIRST4']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: train-first4
+  cancel-in-progress: false
+
+jobs:
+  train:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: first_v2
+            script: ci_v2.sh
+            args: ''
+          - name: first_v3a
+            script: ci_v3.sh
+            args: --search 0.1,6
+          - name: first_v3b
+            script: ci_v3.sh
+            args: --pool models/v1.json,models/v2.json,models/v3.json,models/v4.json,models/first_v1.json,rule --poolP 0.5
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: main }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Öyrən (${{ matrix.name }})
+        working-directory: ai
+        run: |
+          if [ "${{ matrix.script }}" = ci_v2.sh ]; then ./ci_v2.sh train; else ./ci_v3.sh ${{ matrix.name }} train ${{ matrix.args }}; fi
+      - name: Ara modelləri ehtiyat kimi saxla
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snaps-${{ matrix.name }}
+          path: |
+            /tmp/snaps/*.json
+            ai/models/log_*.txt
+          retention-days: 90
+          if-no-files-found: warn
+      - name: Seç (${{ matrix.name }})
+        working-directory: ai
+        run: |
+          if [ "${{ matrix.script }}" = ci_v2.sh ]; then ./ci_v2.sh pick; else ./ci_v3.sh ${{ matrix.name }} pick; fi
+      - name: Yaz
+        run: |
+          git config user.name "durak-ai-train"; git config user.email "durak-ai-train@users.noreply.github.com"
+          git add ai/models/${{ matrix.name }}.json ai/models/log_*.txt && git commit -m "${{ matrix.name }} öyrətməsi bitdi" || exit 0
+          for i in 1 2 3 4 5 6 7 8; do git pull --rebase origin main && git push origin HEAD:main && break; sleep $((10 + RANDOM % 25)); done
+
+  compare:
+    needs: train
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: main }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Müqayisə
+        working-directory: ai
+        run: |
+          git pull -q origin main || true
+          ./ci_cmp4.sh
+      - name: Yaz
+        run: |
+          git config user.name "durak-ai-train"; git config user.email "durak-ai-train@users.noreply.github.com"
+          git add ai/models/cmp_first3.txt && git commit -m "firstv1/v2/v3a/v3b müqayisəsi" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase origin main && git push origin HEAD:main && break; sleep 15; done
