@@ -1,0 +1,63 @@
+name: v4 vs firstv1 — üz-üzə oyunlar (~2 saat)
+
+on:
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: 'Hər konfiqurasiya üçün dəqiqə'
+        default: '110'
+  push:
+    paths: ['ai/START_MATCH']
+
+permissions:
+  contents: write
+
+jobs:
+  play:
+    strategy:
+      fail-fast: false
+      matrix:
+        set:
+          - "2:24:v4,f1:pure 2:36:v4,f1:pure 2:52:v4,f1:pure 3:24:v4,f1,v4:pure"
+          - "3:36:v4,f1,v4:pure 3:52:v4,f1,v4:pure 3:24:v4,f1,f1:pure 3:36:v4,f1,f1:pure"
+          - "3:52:v4,f1,f1:pure 4:24:v4,v4,f1,f1:pure 4:36:v4,v4,f1,f1:pure 4:52:v4,v4,f1,f1:pure"
+          - "3:24:v4,f1,v4:hyb 3:36:v4,f1,v4:hyb 3:52:v4,f1,v4:hyb 3:24:v4,f1,f1:hyb"
+          - "3:36:v4,f1,f1:hyb 3:52:v4,f1,f1:hyb 4:24:v4,v4,f1,f1:hyb"
+          - "4:36:v4,v4,f1,f1:hyb 4:52:v4,v4,f1,f1:hyb"
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Oyna
+        working-directory: ai
+        run: |
+          M="${{ github.event.inputs.minutes }}"; [ -z "$M" ] && M=110
+          mkdir -p /tmp/res
+          for c in ${{ matrix.set }}; do
+            IFS=: read n d l m <<< "$c"
+            node match.js --n $n --deck $d --lineup $l --mode $m --minutes $M --out /tmp/res/${n}_${d}_${l//,/-}_${m}.json > /dev/null &
+          done
+          wait; ls /tmp/res
+      - uses: actions/upload-artifact@v4
+        with:
+          name: res-${{ strategy.job-index }}
+          path: /tmp/res/*.json
+
+  summary:
+    needs: play
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/download-artifact@v4
+        with: { path: /tmp/all }
+      - name: Cədvəl
+        run: |
+          node ai/matchsum.js /tmp/all > ai/models/match_v4_first1.txt; cat ai/models/match_v4_first1.txt
+          git config user.name "durak-ai-train"; git config user.email "durak-ai-train@users.noreply.github.com"
+          git add ai/models/match_v4_first1.txt && git commit -m "v4 vs firstv1 üz-üzə nəticələri" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase origin main && git push origin HEAD:main && break; sleep 15; done
