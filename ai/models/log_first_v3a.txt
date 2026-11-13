@@ -1,0 +1,24 @@
+2026-11-13T10:38:48 first_v3a: başlanğıc firstv1 (4350000 oyun), --search 0.1,6
+2026-11-13T10:53:32 oyun 4360000 · itki 0.4204 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 79% (bərabər 50), 3 nəfər 38% (33), 4 nəfər 39% (25) · 11.3 oyun/san
+2026-11-13T11:08:03 oyun 4370000 · itki 0.4224 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 73% (bərabər 50), 3 nəfər 42% (33), 4 nəfər 37% (25) · 11.4 oyun/san
+2026-11-13T11:22:26 oyun 4380000 · itki 0.4196 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 68% (bərabər 50), 3 nəfər 47% (33), 4 nəfər 40% (25) · 11.5 oyun/san
+2026-11-13T11:36:43 oyun 4390000 · itki 0.4180 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 75% (bərabər 50), 3 nəfər 49% (33), 4 nəfər 41% (25) · 11.5 oyun/san
+2026-11-13T11:50:39 oyun 4400000 · itki 0.4192 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 78% (bərabər 50), 3 nəfər 45% (33), 4 nəfər 36% (25) · 11.6 oyun/san
+2026-11-13T12:05:00 oyun 4410000 · itki 0.4214 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 78% (bərabər 50), 3 nəfər 39% (33), 4 nəfər 37% (25) · 11.6 oyun/san
+2026-11-13T12:19:28 oyun 4420000 · itki 0.4254 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 76% (bərabər 50), 3 nəfər 48% (33), 4 nəfər 37% (25) · 11.6 oyun/san
+2026-11-13T12:33:24 oyun 4430000 · itki 0.4223 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 77% (bərabər 50), 3 nəfər 44% (33), 4 nəfər 36% (25) · 11.6 oyun/san
+2026-11-13T12:47:44 oyun 4440000 · itki 0.4249 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 76% (bərabər 50), 3 nəfər 47% (33), 4 nəfər 38% (25) · 11.6 oyun/san
+2026-11-13T13:02:28 oyun 4450000 · itki 0.4253 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 72% (bərabər 50), 3 nəfər 40% (33), 4 nəfər 38% (25) · 11.6 oyun/san
+2026-11-13T13:16:55 oyun 4460000 · itki 0.4282 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 78% (bərabər 50), 3 nəfər 40% (33), 4 nəfər 37% (25) · 11.6 oyun/san
+2026-11-13T13:31:15 oyun 4470000 · itki 0.4264 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 76% (bərabər 50), 3 nəfər 51% (33), 4 nəfər 28% (25) · 11.6 oyun/san
+2026-11-13T13:45:37 oyun 4480000 · itki 0.4277 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 72% (bərabər 50), 3 nəfər 47% (33), 4 nəfər 44% (25) · 11.6 oyun/san
+2026-11-13T13:59:57 oyun 4490000 · itki 0.4247 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 77% (bərabər 50), 3 nəfər 54% (33), 4 nəfər 37% (25) · 11.6 oyun/san
+2026-11-13T14:14:36 oyun 4500000 · itki 0.4294 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 76% (bərabər 50), 3 nəfər 42% (33), 4 nəfər 35% (25) · 11.6 oyun/san
+2026-11-13T14:29:13 oyun 4510000 · itki 0.4303 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 74% (bərabər 50), 3 nəfər 46% (33), 4 nəfər 41% (25) · 11.6 oyun/san
+2026-11-13T14:43:53 oyun 4520000 · itki 0.4295 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 77% (bərabər 50), 3 nəfər 51% (33), 4 nəfər 34% (25) · 11.6 oyun/san
+2026-11-13T14:58:33 oyun 4530000 · itki 0.4264 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 72% (bərabər 50), 3 nəfər 49% (33), 4 nəfər 36% (25) · 11.5 oyun/san
+2026-11-13T15:13:05 oyun 4540000 · itki 0.4259 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 70% (bərabər 50), 3 nəfər 43% (33), 4 nəfər 36% (25) · 11.5 oyun/san
+2026-11-13T15:27:44 oyun 4550000 · itki 0.4218 · qaydalı botlara qarşı 1-ci olur: 2 nəfər 76% (bərabər 50), 3 nəfər 40% (33), 4 nəfər 32% (25) · 11.5 oyun/san
+2026-11-13T15:28:48 bitdi: 4550741 oyun (200741 bu dəfə) · növlər: {"3p36":511380,"4p24":674678,"3p52":512523,"4p52":674014,"2p52":329963,"3p24":511672,"2p24":330517,"4p36":675136,"2p36":330858}
+2026-11-13T15:35:14 first_v3a 1-ci yoxlama: 4420000 oyun: güc 1.458 (2n 1-ci 76.0%, 3n 1-ci 47.0%, 4n 1-ci 36.1%) | 4550741 oyun: güc 1.447 (2n 1-ci 73.9%, 3n 1-ci 46.2%, 4n 1-ci 36.9%) | 4540000 oyun: güc 1.447 (2n 1-ci 74.4%, 3n 1-ci 46.5%, 4n 1-ci 36.4%) | 4500000 oyun: güc 1.446 (2n 1-ci 74.7%, 3n 1-ci 45.9%, 4n 1-ci 36.7%) | 4380000 oyun: güc 1.437 (2n 1-ci 74.0%, 3n 1-ci 46.4%, 4n 1-ci 36.0%) | 4460000 oyun: güc 1.428 (2n 1-ci 74.8%, 3n 1-ci 45.3%, 4n 1-ci 35.7%)
+2026-11-13T15:39:52 first_v3a seçim (2 yoxlamanın ortası): 4420000 oyun: güc 1.455 (2n 1-ci 75.7%, 3n 1-ci 47.1%, 4n 1-ci 36.0%) | 4550741 oyun: güc 1.447 (2n 1-ci 73.8%, 3n 1-ci 46.4%, 4n 1-ci 36.8%) | 4540000 oyun: güc 1.444 (2n 1-ci 74.4%, 3n 1-ci 46.5%, 4n 1-ci 36.2%) → seçildi 4420000 oyun
