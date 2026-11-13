@@ -126,6 +126,27 @@ class GameN {
     const a = took ? this.nextAct(d) : (this.active(d) ? d : this.nextAct(d));
     this.att = a; this.att0 = a; this.def = this.nextAct(a);
   }
+  // tam surət (axtarış üçün)
+  clone() {
+    const c = Object.create(GameN.prototype);
+    Object.assign(c, this);
+    c.h = this.h.map((x) => x.slice()); c.tA = this.tA.slice(); c.tD = this.tD.slice(); c.dk = this.dk.slice();
+    c.known = this.known.map((r) => r.map((st) => new Set(st))); c.gone = new Set(this.gone); c.first = this.first ? this.first.slice() : null;
+    return c;
+  }
+  // p-nin GÖRMƏDİYİ kartları (rəqiblərin bilinməyən kartları + dəstə) təsadüfi yenidən payla — p-nin bildikləri dəyişmir
+  determinize(p, rnd) {
+    const pool = [];
+    for (let q = 0; q < this.N; q++) if (q !== p) for (const c of this.h[q]) if (!this.known[p][q].has(c)) pool.push(c);
+    const tc = this.dk.length ? this.dk[0] : -1;   // açıq koz dəstənin altındadır — hamı görür
+    for (let i = this.dk.length ? 1 : 0; i < this.dk.length; i++) pool.push(this.dk[i]);
+    for (let i = pool.length - 1; i > 0; i--) { const j = (rnd() * (i + 1)) | 0; const t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
+    let k = 0;
+    for (let q = 0; q < this.N; q++) if (q !== p) this.h[q] = this.h[q].map((c) => this.known[p][q].has(c) ? c : pool[k++]);
+    for (let i = this.dk.length ? 1 : 0; i < this.dk.length; i++) this.dk[i] = pool[k++];
+    if (tc >= 0) this.dk[0] = tc;
+    return this;
+  }
   // p üçün nəticə: durak — 0, durak deyil — 1, heç-heçə (hamı birdən çıxdı) — 0.5
   score(p) { return this.durak === p ? 0 : this.durak < 0 ? 0.5 : 1; }
   // p üçün "1-ci olmaq" nəticəsi: tək 1-cidirsə 1, eyni anda bir neçə nəfər çıxıbsa bölünür, yoxsa 0

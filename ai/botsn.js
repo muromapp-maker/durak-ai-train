@@ -45,4 +45,41 @@ function nnBotN(net, eps) {
   };
 }
 
-module.exports = { randomBotN, ruleBotN, nnBotN };
+// axtarışlı neyron (PIMC): p-nin görmədiyi kartlar K dəfə təsadüfi paylanır; hər namizəd gediş hər paylamada oynanır,
+// rəqiblər neyronla cavab verir — p-nin növbəti qərarına (ən çox DEPTH qərar) qədər; sonra vəziyyət neyronla qiymətləndirilir.
+// goal 'first': kimsə artıq çıxıbsa nəticə dəqiq bəllidir (scoreFirst).
+function searchBotN(net, o) {
+  o = o || {}; const K = o.K || 6, DEPTH = o.depth || 8, FIRST = o.goal === 'first', greedy = nnBotN(net, 0), x = new Float32Array(NF);
+  const term = (c, p) => FIRST ? (c.first ? c.scoreFirst(p) : null) : (c.over() ? c.score(p) : (!c.active(p) ? 1 : null));
+  return {
+    name: 'axtarışlı neyron', net,
+    pick(g, info, rnd) {
+      const p = info.p, M = info.M;
+      if (M.length === 1) return M[0];
+      const sum = new Float64Array(M.length);
+      for (let k = 0; k < K; k++) {
+        const d = g.clone().determinize(p, rnd);
+        for (let i = 0; i < M.length; i++) {
+          const c = d.clone(); c.cur = p; c.play(M[i]);
+          let v = null;
+          let mine = null;
+          for (let s = 0; s < DEPTH; s++) {
+            v = term(c, p); if (v !== null) break;
+            const inf = c.legal(); if (!inf) { v = term(c, p); break; }
+            if (inf.p === p) { mine = inf; break; }
+            c.play(greedy.pick(c, inf, rnd));
+          }
+          if (v === null) v = term(c, p);
+          // yarpaq: p-nin növbəsidirsə — onun ən yaxşı gedişindən sonrakı vəziyyətin dəyəri (şəbəkə belə öyrədilib)
+          if (v === null && mine) { v = -1; for (const m of mine.M) { const y = net.forward(featN(c, afterN(c, m, p), p, x)); if (y > v) v = y; } }
+          if (v === null) v = net.forward(featN(c, null, p, x));
+          sum[i] += v;
+        }
+      }
+      let bi = 0; for (let i = 1; i < M.length; i++) if (sum[i] > sum[bi]) bi = i;
+      return M[bi];
+    },
+  };
+}
+
+module.exports = { randomBotN, ruleBotN, nnBotN, searchBotN };

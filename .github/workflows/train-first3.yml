@@ -1,0 +1,93 @@
+name: firstv3a + firstv3b öyrət (yaxşı olan first modelin üstündən) və müqayisə
+
+# firstv2 işi bitən kimi özü başlayır (və ya əl ilə). Başlanğıc: ai/models/first_v2.json
+# (firstv2 firstv1-dən hər oyunçu sayında güclü deyildisə, orada firstv1 saxlanılıb — yəni həmişə ikisinin yaxşısı).
+#  • v3a: oynayarkən irəlini hesablamaq (axtarış) ilə öyrətmə + dəqiq seçim  → ai/models/first_v3a.json
+#  • v3b: qarışıq rəqiblər (v1–v4, firstv1, başlanğıc, qaydalı) ilə öyrətmə + dəqiq seçim → ai/models/first_v3b.json
+#  • compare: ikisini başlanğıc modellə və v4 ilə müqayisə edir → ai/models/cmp_first3.txt
+# Hər iki yeni model nəticədən asılı olmayaraq saxlanılır.
+on:
+  workflow_run:
+    workflows: ['firstv1 yoxla + firstv2 öyrət (firstv1-in üstündən, ~5 saat)']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: train-first3
+  cancel-in-progress: false
+
+jobs:
+  train:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: first_v3a
+            args: --search 0.1,6
+          - name: first_v3b
+            args: --pool models/v1.json,models/v2.json,models/v3.json,models/v4.json,models/first_v1.json,/tmp/base.json,rule --poolP 0.5
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: main }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Öyrən (${{ matrix.name }})
+        working-directory: ai
+        run: |
+          cp models/first_v2.json /tmp/base.json; cp models/first_v2.json models/${{ matrix.name }}.json
+          echo "${{ matrix.name }}: başlanğıc $(node -e "console.log(require('/tmp/base.json').meta.games)") oyunluq model, ${{ matrix.args }}" >> models/log_${{ matrix.name }}.txt
+          node trainn.js --goal first --minutes 290 --model models/${{ matrix.name }}.json --log models/log_${{ matrix.name }}.txt --evalEvery 10000 \
+            --pn 0.2,0.4,0.4 --nb4 0.5 --lr 0.0005 --snapEvery 20000 --snapDir /tmp/snaps ${{ matrix.args }}
+      - name: Dəqiq seçim
+        working-directory: ai
+        run: |
+          cp models/${{ matrix.name }}.json /tmp/final.json
+          ls /tmp/snaps/*.json | awk 'NR%2==0' > /tmp/sn.txt   # nüsxələrin yarısı (vaxt üçün)
+          C="/tmp/final.json $(cat /tmp/sn.txt)"
+          echo $C | tr ' ' '\n' | xargs -d '\n' -P 4 -I{} sh -c 'node evalfirst.js {} 3000 --json {}.res > /dev/null'
+          node select3.js --round1 $(for m in $C; do echo $m.res; done) --top /tmp/top.txt --name ${{ matrix.name }} --log models/log_${{ matrix.name }}.txt
+          cat /tmp/top.txt | xargs -d '\n' -P 3 -I{} sh -c 'node evalfirst.js {} 4000 --seed 777 --json {}.res2 > /dev/null'
+          node select3.js --final $(for m in $(cat /tmp/top.txt); do echo $m.res $m.res2; done) --out /tmp/best.txt --name ${{ matrix.name }} --log models/log_${{ matrix.name }}.txt
+          cp $(cat /tmp/best.txt) models/${{ matrix.name }}.json
+      - name: Yaz
+        run: |
+          git config user.name "durak-ai-train"; git config user.email "durak-ai-train@users.noreply.github.com"
+          git add ai/models/${{ matrix.name }}.json ai/models/log_${{ matrix.name }}.txt && git commit -m "${{ matrix.name }} öyrətməsi bitdi" || exit 0
+          for i in 1 2 3 4 5 6; do git pull --rebase origin main && git push origin HEAD:main && break; sleep $((10 + RANDOM % 20)); done
+
+  compare:
+    needs: train
+    if: always() && needs.train.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: main }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Müqayisə
+        working-directory: ai
+        run: |
+          git pull -q origin main || true
+          B=$( [ "$(node -e "console.log(require('./models/first_v2.json').meta.games)")" = "$(node -e "console.log(require('./models/first_v1.json').meta.games)")" ] && echo firstv1 || echo firstv2 )
+          echo "# firstv3a / firstv3b müqayisəsi ($(date -u +%F)); başlanğıc = $B" > /tmp/h.txt
+          for m in first_v2 first_v3a first_v3b v4; do echo "node evalfirst.js models/$m.json 4000 --seed 31 > /tmp/e_$m.txt"; done > /tmp/jobs.txt
+          for m in first_v2 first_v3a first_v3b; do echo "node h2h.js models/$m.json models/v4.json 2000 --name '$m vs v4' > /tmp/v_$m.txt"; done >> /tmp/jobs.txt
+          echo "node h2h.js models/first_v3a.json models/first_v2.json 2000 --name 'first_v3a vs başlanğıc ($B)' > /tmp/b_a.txt" >> /tmp/jobs.txt
+          echo "node h2h.js models/first_v3b.json models/first_v2.json 2000 --name 'first_v3b vs başlanğıc ($B)' > /tmp/b_b.txt" >> /tmp/jobs.txt
+          echo "node h2h.js models/first_v3a.json models/first_v3b.json 2000 --name 'first_v3a vs first_v3b' > /tmp/b_ab.txt" >> /tmp/jobs.txt
+          cat /tmp/jobs.txt | xargs -d '\n' -P 4 -I{} sh -c '{}'
+          { cat /tmp/h.txt; echo "## qaydalı botlara qarşı (hər növdə 4000 oyun)"; for m in first_v2 first_v3a first_v3b v4; do echo "$m: $(cat /tmp/e_$m.txt)"; done
+            echo "## üz-üzə (bir yerdə birinci model, qalan yerlərdə ikinci; hər növdə 2000 oyun)"; cat /tmp/v_*.txt /tmp/b_*.txt; } > /tmp/cmp.txt
+          cat /tmp/cmp.txt; cat /tmp/cmp.txt >> models/cmp_first3.txt
+      - name: Yaz
+        run: |
+          git config user.name "durak-ai-train"; git config user.email "durak-ai-train@users.noreply.github.com"
+          git add ai/models/cmp_first3.txt && git commit -m "firstv3a / firstv3b müqayisəsi" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase origin main && git push origin HEAD:main && break; sleep 15; done

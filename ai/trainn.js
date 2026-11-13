@@ -4,7 +4,7 @@
 'use strict';
 const fs = require('fs');
 const { MLP } = require('./mlp.js'), { GameN } = require('./simn.js'), { featN, afterN, NF } = require('./featn.js');
-const { nnBotN, ruleBotN, randomBotN } = require('./botsn.js'), { rng } = require('./arena.js');
+const { nnBotN, ruleBotN, randomBotN, searchBotN } = require('./botsn.js'), { rng } = require('./arena.js');
 
 const A = {}; process.argv.slice(2).forEach((a, i, v) => { if (a.startsWith('--')) A[a.slice(2)] = v[i + 1]; });
 const MIN = +(A.minutes || 5), LR = +(A.lr || 0.0007), LAM = +(A.lambda || 0.7), EPS0 = +(A.eps || 0.08);
@@ -12,6 +12,11 @@ const PATH = A.model || 'models/durak_mp.json', LOG = A.log || 'models/log_mp.tx
 // oyunçu sayı payları (2,3,4) və 4 nəfərlikdə "qonşular atır" payı — --pn 0.15,0.3,0.55 --nb4 0.75
 const SNAP = +(A.snapEvery || 0), SNAPDIR = A.snapDir || 'snaps';
 const FIRST = A.goal === 'first';   // --goal first: durak olmamaq yox, oyunda 1-ci olmaq üçün öyrən
+// --search 0.1,6 : self-play-də qərarların 10%-ni axtarışla (6 paylama) seç — daha yaxşı gedişlərdən öyrənsin
+const SRCH = A.search ? A.search.split(',').map(Number) : null;
+// --pool a.json,b.json,rule --poolP 0.5 : masadakı yerlərin bir hissəsində köhnə modellər / qaydalı bot oturur (qarışıq rəqiblər);
+//   öyrənən yalnız öz yerlərindən öyrənir (ən azı bir yer onundur)
+const POOLP = +(A.poolP || 0.5);
 const PNa = (A.pn || '0.2,0.4,0.4').split(',').map(Number), PN = { 2: PNa[0], 3: PNa[1], 4: PNa[2] }, NB4 = +(A.nb4 || 0.3);
 
 let net, meta = { games: 0, samples: 0, hist: [], by: {} };
@@ -19,6 +24,9 @@ if (fs.existsSync(PATH)) { const j = JSON.parse(fs.readFileSync(PATH)); net = ML
 else net = new MLP([NF, 160, 80, 1], 11);
 
 const rnd = rng((Date.now() ^ (meta.games * 7919)) >>> 0);
+const POOL = A.pool ? A.pool.split(',').map((f) => f === 'rule' ? ruleBotN : nnBotN(MLP.fromJSON(JSON.parse(fs.readFileSync(f)).net), 0.02)) : null;
+const SBOT = SRCH ? searchBotN(net, { K: SRCH[1] || 6, goal: FIRST ? 'first' : 'durak' }) : null;
+if (POOL) console.log('qarışıq rəqiblər:', A.pool, 'pay', POOLP); if (SRCH) console.log('axtarış:', SRCH);
 const buf = { X: [], T: [] };
 const log = (s) => { console.log(s); fs.appendFileSync(LOG, new Date().toISOString().slice(0, 19) + ' ' + s + '\n'); };
 // zəifliyə görə öyrətmə qarışığı (evaldet.js --mix yazır): { "4p24q": 0.06, "2p52t": 0.05, ... } — t: ötürməli, q: qonşular atır
@@ -36,15 +44,21 @@ function selfPlay(eps) {
   if (MIX) { const k = pickMix(), m = /^(\d)p(\d+)(t?)(q?)$/.exec(k); n = +m[1]; o = { n, deckSize: +m[2], trf: !!m[3], f5: true, nb: !!m[4], rnd }; }
   else { n = pickN(); o = opts(n); }
   const g = new GameN(o), bot = nnBotN(net, eps), tr = Array.from({ length: n }, () => []), x = new Float32Array(NF);
+  // kim oturur: null — öyrənən, yoxsa hovuzdan rəqib
+  const seat = Array.from({ length: n }, () => (POOL && rnd() < POOLP ? POOL[(rnd() * POOL.length) | 0] : null));
+  if (seat.every((b) => b)) seat[(rnd() * n) | 0] = null;
   for (let k = 0; k < 4000; k++) {
     const info = g.legal(); if (!info) break;
-    const p = info.p, m = bot.pick(g, info, rnd);
+    const p = info.p;
+    if (seat[p]) { g.play(seat[p].pick(g, info, rnd)); continue; }
+    const m = SBOT && info.M.length > 1 && rnd() < SRCH[0] && rnd() >= eps ? SBOT.pick(g, info, rnd) : bot.pick(g, info, rnd);
     const xs = featN(g, afterN(g, m, p), p, new Float32Array(NF));
     tr[p].push({ x: xs, v: net.forward(xs) });
     g.play(m);
   }
   if (!g.over()) return;
   for (let p = 0; p < n; p++) {
+    if (seat[p]) continue;
     let G = FIRST ? g.scoreFirst(p) : g.score(p); const T = tr[p];
     for (let t = T.length - 1; t >= 0; t--) { const target = G; buf.X.push(T[t].x); buf.T.push(target); G = (1 - LAM) * T[t].v + LAM * target; }
   }
