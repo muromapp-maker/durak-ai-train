@@ -1,0 +1,75 @@
+name: v5 öyrət (v4-ün üstündən, v3b qaydası ilə, durak OLMAMAQ üçün, ~5 saat)
+# • v5: v4-dən başlayır; qarışıq rəqiblər (v1–v4, firstv1, first_v3b, başlanğıc v4, qaydalı) + dəqiq seçim (durak olmama gücünə görə) → ai/models/v5.json
+# • compare: v5-i v4, first_v3b ilə müqayisə edir → ai/models/cmp_v5.txt. Model nəticədən asılı olmayaraq saxlanılır.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: train-v5
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: main }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Öyrən (v5)
+        working-directory: ai
+        run: |
+          cp models/v4.json /tmp/base.json; cp models/v4.json models/v5.json
+          echo "v5: başlanğıc v4 ($(node -e "console.log(require('/tmp/base.json').meta.games)") oyun), qarışıq rəqiblər, məqsəd: durak olmamaq" >> models/log_v5.txt
+          node trainn.js --minutes 290 --model models/v5.json --log models/log_v5.txt --evalEvery 10000 \
+            --pn 0.2,0.4,0.4 --nb4 0.5 --lr 0.0005 --snapEvery 20000 --snapDir /tmp/snaps \
+            --pool models/v1.json,models/v2.json,models/v3.json,models/v4.json,models/first_v1.json,models/first_v3b.json,/tmp/base.json,rule --poolP 0.5
+      - name: Dəqiq seçim (durak olmama gücü)
+        working-directory: ai
+        run: |
+          cp models/v5.json /tmp/final.json
+          ls /tmp/snaps/*.json | awk 'NR%2==0' > /tmp/sn.txt
+          C="/tmp/final.json /tmp/base.json $(cat /tmp/sn.txt)"
+          echo $C | tr ' ' '\n' | xargs -d '\n' -P 4 -I{} sh -c 'node evalfirst.js {} 3000 --json {}.res > /dev/null'
+          node select3.js --by durak --round1 $(for m in $C; do echo $m.res; done) --top /tmp/top.txt --name v5 --log models/log_v5.txt
+          cat /tmp/top.txt | xargs -d '\n' -P 3 -I{} sh -c 'node evalfirst.js {} 4000 --seed 777 --json {}.res2 > /dev/null'
+          node select3.js --by durak --final $(for m in $(cat /tmp/top.txt); do echo $m.res $m.res2; done) --out /tmp/best.txt --name v5 --log models/log_v5.txt
+          cp $(cat /tmp/best.txt) models/v5.json
+          if [ "$(cat /tmp/best.txt)" = "/tmp/base.json" ]; then echo "v5: heç bir nüsxə v4-dən yaxşı çıxmadı — v5 = v4" >> models/log_v5.txt; fi
+      - name: Yaz
+        run: |
+          git config user.name "durak-ai-train"; git config user.email "durak-ai-train@users.noreply.github.com"
+          git add ai/models/v5.json ai/models/log_v5.txt && git commit -m "v5 öyrətməsi bitdi" || exit 0
+          for i in 1 2 3 4 5 6; do git pull --rebase origin main && git push origin HEAD:main && break; sleep $((10 + RANDOM % 20)); done
+
+  compare:
+    needs: train
+    if: always() && needs.train.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: main }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Müqayisə
+        working-directory: ai
+        run: |
+          echo "# v5 / v4 / first_v3b müqayisəsi ($(date -u +%F)); v5 = v4-ün üstündən durak olmamaq üçün" > /tmp/h.txt
+          for m in v5 v4 first_v3b; do echo "node evalfirst.js models/$m.json 4000 --seed 31 > /tmp/e_$m.txt"; done > /tmp/jobs.txt
+          echo "node h2h.js models/v5.json models/v4.json 2000 --name 'v5 vs v4' > /tmp/v_1.txt" >> /tmp/jobs.txt
+          echo "node h2h.js models/v4.json models/v5.json 2000 --name 'v4 vs v5' > /tmp/v_2.txt" >> /tmp/jobs.txt
+          echo "node h2h.js models/v5.json models/first_v3b.json 2000 --name 'v5 vs first_v3b' > /tmp/v_3.txt" >> /tmp/jobs.txt
+          cat /tmp/jobs.txt | xargs -d '\n' -P 4 -I{} sh -c '{}'
+          { cat /tmp/h.txt; echo "## qaydalı botlara qarşı (hər növdə 4000 oyun)"; for m in v5 v4 first_v3b; do echo "$m: $(cat /tmp/e_$m.txt)"; done
+            echo "## üz-üzə (bir yerdə birinci model, qalan yerlərdə ikinci; hər növdə 2000 oyun)"; cat /tmp/v_*.txt; } > /tmp/cmp.txt
+          cat /tmp/cmp.txt; cat /tmp/cmp.txt >> models/cmp_v5.txt
+      - name: Yaz
+        run: |
+          git config user.name "durak-ai-train"; git config user.email "durak-ai-train@users.noreply.github.com"
+          git add ai/models/cmp_v5.txt && git commit -m "v5 müqayisəsi" || exit 0
+          for i in 1 2 3 4 5 6; do git pull --rebase origin main && git push origin HEAD:main && break; sleep $((10 + RANDOM % 20)); done

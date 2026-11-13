@@ -4,9 +4,11 @@
 'use strict';
 const fs = require('fs');
 const av = process.argv.slice(2), opt = (k) => { const i = av.indexOf(k); return i >= 0 ? av[i + 1] : null; };
-const VAL = new Set(['--top', '--out', '--log', '--name']), files = av.filter((a, i) => !a.startsWith('--') && !(i > 0 && VAL.has(av[i - 1])));
+const VAL = new Set(['--top', '--out', '--log', '--name', '--by']), files = av.filter((a, i) => !a.startsWith('--') && !(i > 0 && VAL.has(av[i - 1])));
 const R = files.map((f) => JSON.parse(fs.readFileSync(f))), NS = ['2', '3', '4'];
-const f = (r) => r.games + ' oyun: güc ' + r.score.toFixed(3) + ' (' + NS.map((n) => n + 'n 1-ci ' + (100 * r.per[n] / n).toFixed(1) + '%').join(', ') + ')';
+// --by durak: güc = durak OLMAMA payı / bərabər pay ((n-1)/n), növlərin ortası (1.00 = bərabər, çox = az durak qalır)
+if (av.includes('--by') && opt('--by') === 'durak') R.forEach((r) => { r.score = NS.reduce((s, n) => s + (1 - r.perD[n]) / ((n - 1) / n), 0) / NS.length; });
+const f = (r) => r.games + ' oyun: güc ' + r.score.toFixed(3) + ' (' + NS.map((n) => n + 'n 1-ci ' + (100 * r.per[n] / n).toFixed(1) + '%' + (r.perD ? ' durak ' + (100 * r.perD[n]).toFixed(1) + '%' : '')).join(', ') + ')';
 const L = (m) => { console.log(m); if (opt('--log')) fs.appendFileSync(opt('--log'), new Date().toISOString().slice(0, 19) + ' ' + m + '\n'); };
 if (av.includes('--round1')) {
   R.sort((a, b) => b.score - a.score);
@@ -14,7 +16,7 @@ if (av.includes('--round1')) {
   fs.writeFileSync(opt('--top'), R.slice(0, 3).map((r) => r.path).join('\n'));
 } else {
   const by = {}; R.forEach((r) => { (by[r.path] = by[r.path] || []).push(r); });
-  const avg = Object.values(by).map((a) => ({ path: a[0].path, games: a[0].games, score: a.reduce((s, r) => s + r.score, 0) / a.length, per: Object.fromEntries(NS.map((n) => [n, a.reduce((s, r) => s + r.per[n], 0) / a.length])) }));
+  const avg = Object.values(by).map((a) => ({ path: a[0].path, games: a[0].games, score: a.reduce((s, r) => s + r.score, 0) / a.length, perD: a[0].perD && Object.fromEntries(NS.map((n) => [n, a.reduce((s, r) => s + r.perD[n], 0) / a.length])), per: Object.fromEntries(NS.map((n) => [n, a.reduce((s, r) => s + r.per[n], 0) / a.length])) }));
   avg.sort((a, b) => b.score - a.score);
   L((opt('--name') || '') + ' seçim (2 yoxlamanın ortası): ' + avg.map(f).join(' | ') + ' → seçildi ' + avg[0].games + ' oyun');
   fs.writeFileSync(opt('--out'), avg[0].path);
