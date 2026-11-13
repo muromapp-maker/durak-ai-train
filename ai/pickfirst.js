@@ -11,4 +11,7 @@ c.sort((a, b) => (all(b) - all(a)) || b.score - a.score);
 const f = (r) => r.games + ' oyun: güc ' + r.score.toFixed(3) + ' (' + NS.map((n) => n + 'n 1-ci ' + (100 * r.per[n] / n).toFixed(1) + '%').join(', ') + ')';
 const m = 'firstv1 seçimi: başlanğıc ' + f(base) + ' · ' + c.map((r) => f(r) + (all(r) ? ' ✓hamısı' : '')).join(' | ') + ' → seçildi: ' + c[0].games + ' oyun' + (all(c[0]) ? ' (hər oyunçu sayında güclü)' : ' (DİQQƏT: hamısında güclü deyil)');
 console.log(m); if (opt('--log')) fs.appendFileSync(opt('--log'), new Date().toISOString().slice(0, 19) + ' ' + m + '\n');
-fs.writeFileSync(opt('--out'), c[0].path);
+// --strict: heç biri hər oyunçu sayında güclü deyilsə — başlanğıc model qalır (geriləmə olmasın)
+const keep = av.includes('--strict') && !all(c[0]);
+if (keep && opt('--log')) fs.appendFileSync(opt('--log'), new Date().toISOString().slice(0, 19) + ' → hamısında güclü nüsxə yoxdur, başlanğıc model saxlanıldı\n');
+fs.writeFileSync(opt('--out'), keep ? base.path : c[0].path);

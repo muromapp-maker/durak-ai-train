@@ -1,0 +1,75 @@
+name: firstv1 yoxla + firstv2 öyrət (firstv1-in üstündən, ~5 saat)
+
+# firstv1 öyrətməsi bitən kimi özü başlayır (və ya əl ilə). İki iş paralel:
+#  • compare: firstv1-i v4, v2 və qaydalı botlarla qarşılaşdırır (ai/models/cmp_first.txt)
+#  • train2: firstv1-in üstündən 5 saat daha öyrədir → ai/models/first_v2.json (hər oyunçu sayında güclü deyilsə firstv1 qalır)
+on:
+  workflow_run:
+    workflows: ['firstv1 öyrət — oyunda 1-ci olmaq (~5 saat)']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: train-first2
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: main }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Qarşılaşdır
+        working-directory: ai
+        run: |
+          echo "# firstv1 qarşılaşmaları ($(date -u +%F), hər oyun növündə 1000 oyun; faizlər birinci modelindir)" > /tmp/c.txt
+          node h2h.js models/first_v1.json rule 1000 --name "firstv1 vs qaydalı botlar" --out /tmp/c1.txt &
+          node h2h.js models/first_v1.json models/v4.json 1000 --name "firstv1 vs v4" --out /tmp/c2.txt &
+          node h2h.js models/first_v1.json models/v2.json 1000 --name "firstv1 vs v2" --out /tmp/c3.txt &
+          node h2h.js models/v4.json models/v2.json 1000 --name "v4 vs v2 (müqayisə üçün)" --out /tmp/c4.txt &
+          wait
+          cat /tmp/c.txt /tmp/c1.txt /tmp/c2.txt /tmp/c3.txt /tmp/c4.txt >> models/cmp_first.txt; cat models/cmp_first.txt
+      - name: Yaz
+        run: |
+          git config user.name "durak-ai-train"; git config user.email "durak-ai-train@users.noreply.github.com"
+          git add ai/models/cmp_first.txt && git commit -m "firstv1 qarşılaşmaları" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase origin main && git push origin HEAD:main && break; sleep 15; done
+
+  train2:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: main }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: firstv1-in üstündən öyrən
+        working-directory: ai
+        run: |
+          cp models/first_v1.json models/first_v2.json; cp models/first_v1.json /tmp/base.json
+          echo "firstv2: firstv1 ($(node -e "console.log(require('./models/first_v1.json').meta.games)") oyun) üstündən başlayır" >> models/log_first.txt
+          node trainn.js --goal first --minutes 300 --model models/first_v2.json --log models/log_first.txt --evalEvery 25000 \
+            --pn 0.34,0.33,0.33 --nb4 0.5 --lr 0.0005 --snapEvery 150000 --snapDir /tmp/snaps
+      - name: Yoxla və seç (geriləmə olmasın)
+        working-directory: ai
+        run: |
+          cp models/first_v2.json /tmp/final.json
+          C="/tmp/final.json $(ls /tmp/snaps/*.json 2>/dev/null)"
+          for m in /tmp/base.json $C; do node evalfirst.js $m 2000 --json $m.res > /dev/null & done; wait
+          node pickfirst.js /tmp/base.json.res $(for m in $C; do echo $m.res; done) --out /tmp/best.txt --log models/log_first.txt --strict
+          B=$(cat /tmp/best.txt)
+          node evalfirst.js /tmp/base.json 2000 --seed 777 --json /tmp/b2.res --log models/log_first.txt & node evalfirst.js $B 2000 --seed 777 --json /tmp/c2.res --log models/log_first.txt & wait
+          node -e "const b=require('/tmp/b2.res'),c=require('/tmp/c2.res');const ok=['2','3','4'].every(n=>c.per[n]>b.per[n]);require('fs').appendFileSync('models/log_first.txt',new Date().toISOString().slice(0,19)+' firstv2 2-ci yoxlama: '+(ok?'hər oyunçu sayında güclüdür → firstv2 götürüldü':'hamısında güclü deyil → firstv1 saxlanıldı')+'\n');require('fs').copyFileSync(ok?'$B':'/tmp/base.json','models/first_v2.json');"
+      - name: Yaz
+        run: |
+          git config user.name "durak-ai-train"; git config user.email "durak-ai-train@users.noreply.github.com"
+          git add ai/models/first_v2.json ai/models/log_first.txt && git commit -m "firstv2 öyrətməsi bitdi: $(node -e "console.log(require('./ai/models/first_v2.json').meta.games)") oyun" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase origin main && git push origin HEAD:main && break; sleep 15; done

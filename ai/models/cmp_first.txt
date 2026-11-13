@@ -1,0 +1,5 @@
+# 1-ci olma müqayisəsi (qaydalı botlara qarşı, hər oyun növündə 4000 oyun, 2026-11-13)
+v1 (1118472 oyun): 2n 1-ci 71.6% durak 24.5% | 3n 1-ci 38.7% durak 15.1% | 4n 1-ci 26.4% durak 14.9%
+v2 (3074587 oyun): 2n 1-ci 73.9% durak 21.9% | 3n 1-ci 39.8% durak 12.9% | 4n 1-ci 27.0% durak 12.7%
+v3 (3931669 oyun): 2n 1-ci 72.8% durak 23.2% | 3n 1-ci 38.5% durak 14.0% | 4n 1-ci 27.9% durak 13.2%
+v4 (3450000 oyun): 2n 1-ci 76.7% durak 19.7% | 3n 1-ci 40.4% durak 12.2% | 4n 1-ci 27.4% durak 12.6%
