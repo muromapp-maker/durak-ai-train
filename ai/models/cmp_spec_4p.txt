@@ -1,0 +1,4 @@
+v6_4p vs first_v3b [4 nəfər, bərabər 25.0%]: durak 6.7% (24 kart 6.2%, 36 kart 7.2%)
+v4 vs first_v3b [4 nəfər, bərabər 25.0%]: durak 7.0% (24 kart 6.5%, 36 kart 7.6%)
+v4 vs v6_4p [4 nəfər, bərabər 25.0%]: durak 24.6% (24 kart 24.3%, 36 kart 24.9%)
+v6_4p vs v4 [4 nəfər, bərabər 25.0%]: durak 24.4% (24 kart 23.9%, 36 kart 24.9%)
