@@ -1,0 +1,4 @@
+v6_2p vs first_v3b [2 nəfər, bərabər 50.0%]: durak 43.8% (24 kart 42.0%, 36 kart 45.6%)
+v4 vs first_v3b [2 nəfər, bərabər 50.0%]: durak 44.1% (24 kart 44.2%, 36 kart 44.0%)
+v6_2p vs v4 [2 nəfər, bərabər 50.0%]: durak 46.2% (24 kart 46.1%, 36 kart 46.2%)
+v4 vs v6_2p [2 nəfər, bərabər 50.0%]: durak 48.7% (24 kart 50.5%, 36 kart 46.9%)
