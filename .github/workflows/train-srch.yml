@@ -1,0 +1,48 @@
+name: v4 + yüksək axtarış payı (3 variant paralel: 30% / 60% / 100%, ~5 saat)
+# v4-dən davam, bütün oyun növləri, durak olmamaq hədəfi. Hər variant ayrı maşında: ai/models/v7_s{30,60,100}.json.
+# Sonda v4 ilə üz-üzə müqayisə → ai/models/cmp_srch_*.txt. Köhnə modellər dəyişmir.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  srch:
+    strategy:
+      fail-fast: false
+      matrix:
+        p: [30, 60, 100]
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    concurrency:
+      group: srch-${{ matrix.p }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: main }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Öyrən
+        working-directory: ai
+        run: |
+          P=${{ matrix.p }}
+          F=$(node -e "console.log(${P}/100)")
+          cp models/v4.json /tmp/base.json; cp models/v4.json models/v7_s${P}.json
+          echo "v7_s${P}: başlanğıc v4, axtarış payı ${F}, K=6" >> models/log_srch_${P}.txt
+          node trainn.js --minutes 290 --model models/v7_s${P}.json --log models/log_srch_${P}.txt --evalEvery 10000 \
+            --search ${F},6 --lr 0.0005 \
+            --pool models/v1.json,models/v2.json,models/v3.json,models/v4.json,models/first_v3b.json,/tmp/base.json,rule --poolP 0.4
+      - name: Müqayisə (v4 ilə, bütün növlər)
+        working-directory: ai
+        run: |
+          P=${{ matrix.p }}
+          node h2h.js models/v7_s${P}.json models/v4.json 400 --seed 5 --name "v7_s${P} vs v4" --out /tmp/c.txt &
+          node h2h.js models/v4.json models/v7_s${P}.json 400 --seed 5 --name "v4 vs v7_s${P}" --out /tmp/c.txt &
+          wait; cat /tmp/c.txt | tee -a models/cmp_srch_${P}.txt
+      - name: Yaz
+        run: |
+          P=${{ matrix.p }}
+          git config user.name "durak-ai-train"; git config user.email "durak-ai-train@users.noreply.github.com"
+          git add ai/models/v7_s${P}.json ai/models/log_srch_${P}.txt ai/models/cmp_srch_${P}.txt && git commit -m "v7_s${P} bitdi" || exit 0
+          for i in 1 2 3 4 5 6; do git pull --rebase origin main && git push origin HEAD:main && break; sleep $((10 + RANDOM % 20)); done
