@@ -1,0 +1,56 @@
+name: İxtisaslaşmış modellər (v4-dən davam, yalnız 24/36 kart; 2, 3, 4 nəfər paralel, ~5 saat)
+# Hər iş ayrı maşında: v4 → ai/models/v6_{n}p.json (yalnız həmin oyunçu sayı, 24/36 kart, ötürməli/ötürməsiz).
+# Sonda öz kateqoriyasında v4 ilə üz-üzə müqayisə → ai/models/cmp_spec.txt. Heç bir köhnə model silinmir/dəyişmir.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  spec:
+    strategy:
+      fail-fast: false
+      matrix:
+        n: [2, 3, 4]
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    concurrency:
+      group: spec-${{ matrix.n }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: main }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Öyrən
+        working-directory: ai
+        run: |
+          N=${{ matrix.n }}
+          cp models/v4.json /tmp/base.json; cp models/v4.json models/v6_${N}p.json
+          if [ "$N" = "4" ]; then
+            echo '{"4p24t":1,"4p24":1,"4p36t":1,"4p36":1,"4p24tq":1,"4p24q":1,"4p36tq":1,"4p36q":1}' > /tmp/mix.json
+          elif [ "$N" = "3" ]; then
+            echo '{"3p24t":2,"3p24":1.5,"3p36t":2,"3p36":1.5,"3p24tq":0.5,"3p36tq":0.5}' > /tmp/mix.json
+          else
+            echo '{"2p24t":1,"2p24":1,"2p36t":1,"2p36":1}' > /tmp/mix.json
+          fi
+          echo "v6_${N}p: başlanğıc v4, yalnız ${N} nəfər 24/36, axtarış payı 15%" >> models/log_spec_${N}p.txt
+          node trainn.js --minutes 290 --model models/v6_${N}p.json --log models/log_spec_${N}p.txt --evalEvery 10000 \
+            --mix /tmp/mix.json --search 0.15,6 --lr 0.0005 \
+            --pool models/v1.json,models/v2.json,models/v3.json,models/v4.json,models/first_v3b.json,/tmp/base.json,rule --poolP 0.4
+      - name: Müqayisə (öz kateqoriyasında v4 ilə)
+        working-directory: ai
+        run: |
+          N=${{ matrix.n }}
+          node h2hcat.js models/v6_${N}p.json models/v4.json $N 1500 --seed 5 --name "v6_${N}p vs v4" --out /tmp/c1.txt &
+          node h2hcat.js models/v4.json models/v6_${N}p.json $N 1500 --seed 5 --name "v4 vs v6_${N}p" --out /tmp/c1.txt &
+          node h2hcat.js models/v6_${N}p.json models/first_v3b.json $N 1000 --seed 6 --name "v6_${N}p vs first_v3b" --out /tmp/c1.txt &
+          node h2hcat.js models/v4.json models/first_v3b.json $N 1000 --seed 6 --name "v4 vs first_v3b" --out /tmp/c1.txt &
+          wait; cat /tmp/c1.txt | tee -a models/cmp_spec_${N}p.txt
+      - name: Yaz
+        run: |
+          N=${{ matrix.n }}
+          git config user.name "durak-ai-train"; git config user.email "durak-ai-train@users.noreply.github.com"
+          git add ai/models/v6_${N}p.json ai/models/log_spec_${N}p.txt ai/models/cmp_spec_${N}p.txt && git commit -m "v6_${N}p ixtisaslaşmış öyrətmə bitdi" || exit 0
+          for i in 1 2 3 4 5 6; do git pull --rebase origin main && git push origin HEAD:main && break; sleep $((10 + RANDOM % 20)); done
