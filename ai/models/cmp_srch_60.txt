@@ -1,0 +1,2 @@
+v7_s60 vs v4: 2 nəfər: 1-ci 45.8% (bərabər 50%), durak 51.8% · 3 nəfər: 1-ci 33.3% (bərabər 33%), durak 33.9% · 4 nəfər: 1-ci 26.2% (bərabər 25%), durak 25.9%
+v4 vs v7_s60: 2 nəfər: 1-ci 53.8% (bərabər 50%), durak 43.8% · 3 nəfər: 1-ci 34.9% (bərabər 33%), durak 28.2% · 4 nəfər: 1-ci 23.9% (bərabər 25%), durak 23.0%
