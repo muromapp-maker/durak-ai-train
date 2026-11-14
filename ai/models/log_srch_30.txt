@@ -1,0 +1,21 @@
+v7_s30: başlanğıc v4, axtarış payı 0.3, K=6
+2026-11-14T17:59:19 oyun 3460000 · itki 0.4718 · qaydalı botlara qarşı durak olur: 2 nəfər 27% (bərabər 50), 3 nəfər 11% (33), 4 nəfər 9% (25) · 11.0 oyun/san
+2026-11-14T18:14:05 oyun 3470000 · itki 0.4708 · qaydalı botlara qarşı durak olur: 2 nəfər 18% (bərabər 50), 3 nəfər 17% (33), 4 nəfər 7% (25) · 11.1 oyun/san
+2026-11-14T18:28:58 oyun 3480000 · itki 0.4683 · qaydalı botlara qarşı durak olur: 2 nəfər 19% (bərabər 50), 3 nəfər 17% (33), 4 nəfər 11% (25) · 11.2 oyun/san
+2026-11-14T18:43:59 oyun 3490000 · itki 0.4672 · qaydalı botlara qarşı durak olur: 2 nəfər 21% (bərabər 50), 3 nəfər 15% (33), 4 nəfər 17% (25) · 11.1 oyun/san
+2026-11-14T18:59:29 oyun 3500000 · itki 0.4695 · qaydalı botlara qarşı durak olur: 2 nəfər 23% (bərabər 50), 3 nəfər 14% (33), 4 nəfər 14% (25) · 11.1 oyun/san
+2026-11-14T19:15:08 oyun 3510000 · itki 0.4640 · qaydalı botlara qarşı durak olur: 2 nəfər 23% (bərabər 50), 3 nəfər 15% (33), 4 nəfər 12% (25) · 11.0 oyun/san
+2026-11-14T19:30:31 oyun 3520000 · itki 0.4698 · qaydalı botlara qarşı durak olur: 2 nəfər 25% (bərabər 50), 3 nəfər 9% (33), 4 nəfər 15% (25) · 11.0 oyun/san
+2026-11-14T19:46:10 oyun 3530000 · itki 0.4688 · qaydalı botlara qarşı durak olur: 2 nəfər 21% (bərabər 50), 3 nəfər 11% (33), 4 nəfər 9% (25) · 10.9 oyun/san
+2026-11-14T20:01:28 oyun 3540000 · itki 0.4662 · qaydalı botlara qarşı durak olur: 2 nəfər 17% (bərabər 50), 3 nəfər 8% (33), 4 nəfər 15% (25) · 10.9 oyun/san
+2026-11-14T20:16:48 oyun 3550000 · itki 0.4651 · qaydalı botlara qarşı durak olur: 2 nəfər 13% (bərabər 50), 3 nəfər 14% (33), 4 nəfər 18% (25) · 10.9 oyun/san
+2026-11-14T20:32:04 oyun 3560000 · itki 0.4662 · qaydalı botlara qarşı durak olur: 2 nəfər 17% (bərabər 50), 3 nəfər 13% (33), 4 nəfər 9% (25) · 10.9 oyun/san
+2026-11-14T20:47:05 oyun 3570000 · itki 0.4694 · qaydalı botlara qarşı durak olur: 2 nəfər 20% (bərabər 50), 3 nəfər 15% (33), 4 nəfər 11% (25) · 10.9 oyun/san
+2026-11-14T21:02:03 oyun 3580000 · itki 0.4708 · qaydalı botlara qarşı durak olur: 2 nəfər 15% (bərabər 50), 3 nəfər 11% (33), 4 nəfər 11% (25) · 10.9 oyun/san
+2026-11-14T21:17:34 oyun 3590000 · itki 0.4681 · qaydalı botlara qarşı durak olur: 2 nəfər 25% (bərabər 50), 3 nəfər 16% (33), 4 nəfər 8% (25) · 10.9 oyun/san
+2026-11-14T21:32:50 oyun 3600000 · itki 0.4708 · qaydalı botlara qarşı durak olur: 2 nəfər 21% (bərabər 50), 3 nəfər 17% (33), 4 nəfər 11% (25) · 10.9 oyun/san
+2026-11-14T21:48:10 oyun 3610000 · itki 0.4678 · qaydalı botlara qarşı durak olur: 2 nəfər 23% (bərabər 50), 3 nəfər 11% (33), 4 nəfər 17% (25) · 10.9 oyun/san
+2026-11-14T22:03:07 oyun 3620000 · itki 0.4672 · qaydalı botlara qarşı durak olur: 2 nəfər 26% (bərabər 50), 3 nəfər 11% (33), 4 nəfər 10% (25) · 10.9 oyun/san
+2026-11-14T22:18:04 oyun 3630000 · itki 0.4688 · qaydalı botlara qarşı durak olur: 2 nəfər 20% (bərabər 50), 3 nəfər 12% (33), 4 nəfər 9% (25) · 11.0 oyun/san
+2026-11-14T22:32:47 oyun 3640000 · itki 0.4673 · qaydalı botlara qarşı durak olur: 2 nəfər 19% (bərabər 50), 3 nəfər 15% (33), 4 nəfər 13% (25) · 11.0 oyun/san
+2026-11-14T22:34:08 bitdi: 3640864 oyun (190864 bu dəfə) · növlər: {"3p36":411210,"4p24":574673,"3p52":411925,"4p52":574375,"2p52":227415,"3p24":411469,"2p24":227553,"4p36":574444,"2p36":227800}
