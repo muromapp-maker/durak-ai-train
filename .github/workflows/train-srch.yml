@@ -1,4 +1,4 @@
-name: v4 + yüksək axtarış payı (3 variant paralel: 30% / 60% / 100%, ~5 saat)
+name: v4 + yüksək axtarış payı (3 variant paralel, 30-60-100%, ~5 saat)
 # v4-dən davam, bütün oyun növləri, durak olmamaq hədəfi. Hər variant ayrı maşında: ai/models/v7_s{30,60,100}.json.
 # Sonda v4 ilə üz-üzə müqayisə → ai/models/cmp_srch_*.txt. Köhnə modellər dəyişmir.
 on:
